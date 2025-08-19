@@ -287,7 +287,7 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
 
 
       <div className="!sticky !top-25 z-[40] bg-white border-null b-0 pt-4 pb-4 w-full">
-        <div className="flex justify-between w-full items-center mb-6">
+        <div className="flex justify-between w-full items-center mb-3">
           <h2 className="text-2xl font-bold">Choose Your Game</h2>
           <div className="flex items-center space-x-2">
             <Switch id="multi-game"
@@ -324,10 +324,11 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
 
         {/* Show selected games */}
 
-        <div className="flex justify-between items-center p-1 border border-[#e6e6e6] rounded-full">
+
+        <div className="flex justify-between items-center p-2 pl-3 bg-[#f6f6f6] rounded-full">
           <div className="flex flex-wrap gap-2">
             {selectedGames.length > 0 ? selectedGames.map((gameName) => (
-              <Badge key={gameName} variant="secondary" className="bg-[#f6f6f6] text-[#1f1f1f]">
+              <Badge key={gameName} variant="secondary" className="bg-white border border-[#e6e6e6] text-[#1f1f1f]">
                 {gameName}
               </Badge>
             )) : <p className="font-medium text-xs text-[#1f1f1f] pl-2">No games selected yet.</p>}

@@ -142,7 +142,7 @@ export function Step1UserDetails({ orderId, onDataChange, onValidationChange }: 
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-2xl font-bold mb-6">Your Details</h2>
+      <h2 className="text-2xl font-bold mb-3">Your Details</h2>
       <p className="text-gray-600 mb-8">Please provide your contact information to get started.</p>
 
       <div className="space-y-6">

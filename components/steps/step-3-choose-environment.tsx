@@ -224,7 +224,7 @@ export function Step3ChooseEnvironment({ orderId, onDataChange, onValidationChan
       {/* ------ START NEW ------- */}
       <div className="!sticky !top-25 z-[40] bg-white border-null b-0 pt-4 pb-4 w-full">
 
-        <div className="flex justify-between w-full items-center mb-6">
+        <div className="flex justify-between w-full items-center mb-3">
           <h2 className="text-2xl font-bold">Choose Your Environment</h2>
           {selectedGames.length > 1 && (
             <div className="flex gap-2">
@@ -255,11 +255,11 @@ export function Step3ChooseEnvironment({ orderId, onDataChange, onValidationChan
 
 
         {/* Show selected environment for current game */}
-        <div className="flex justify-between gap-2 items-center p-1 pl-3 border border-[#e6e6e6] rounded-full">
+        <div className="flex justify-between gap-2 items-center p-2 pl-3 bg-[#f6f6f6] rounded-full">
           <p className="font-medium text-xs text-[#1f1f1f]">Selected for {currentGame.gameName}</p>
 
           {selectedEnvironments[currentGame.gameName] ? (
-            <Badge variant="secondary" className="bg-[#f6f6f6] text-[#1f1f1f]">
+            <Badge variant="secondary" className="bg-white border border-[#e6e6e6] text-[#1f1f1f]">
               {selectedEnvironments[currentGame.gameName]}
             </Badge>
           ) : <p className="font-medium text-xs text-[#1f1f1f] pr-2">No environments selected yet.</p>}
