@@ -219,90 +219,128 @@ export function Step3ChooseEnvironment({ orderId, onDataChange, onValidationChan
 
   return (
     <div className="max-w-6xl">
-      <h2 className="text-2xl font-bold mb-6">Choose Your Environment</h2>
-      <p className="text-gray-600 mb-8">
-        {selectedGames.length > 1
-          ? `Select the environment for "${currentGame.gameName}" (${currentGameIndex + 1} of ${selectedGames.length})`
-          : `Select the environment that best fits your selected game "${currentGame.gameName}".`}
-      </p>
 
-      {/* Game navigation for multiple games */}
-      {selectedGames.length > 1 && (
-        <div className="mb-6 flex items-center gap-4">
-          <span className="text-sm text-gray-600">Selecting environment for:</span>
-          <div className="flex gap-2">
-            {selectedGames.map((game, index) => (
-              <Button
-                key={game.gameName}
-                variant={index === currentGameIndex ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentGameIndex(index)}
-                className={index === currentGameIndex ? "bg-black text-white" : ""}
-              >
-                {game.gameName}
-                {selectedEnvironments[game.gameName] && " ✓"}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Show selected environment for current game */}
-      {selectedEnvironments[currentGame.gameName] && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <h3 className="font-semibold text-green-800 mb-2">Selected Environment for {currentGame.gameName}:</h3>
-          <Badge variant="secondary" className="bg-green-100 text-green-800">
-            {selectedEnvironments[currentGame.gameName]}
-          </Badge>
+      {/* ------ START NEW ------- */}
+      <div className="!sticky !top-25 z-[40] bg-white border-null b-0 pt-4 pb-4 w-full">
+
+        <div className="flex justify-between w-full items-center mb-6">
+          <h2 className="text-2xl font-bold">Choose Your Environment</h2>
+          {selectedGames.length > 1 && (
+            <div className="flex gap-2">
+              {selectedGames.map((game, index) => (
+                <Button
+                  key={game.gameName}
+                  variant={index === currentGameIndex ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentGameIndex(index)}
+                  className={index === currentGameIndex ? "bg-black text-white rounded-full cursor-pointer" : "rounded-full cursor-pointer"}
+                >
+                  {game.gameName}
+                  {selectedEnvironments[game.gameName] && " ✓"}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* 
+        <p className="text-gray-600 mb-8">
+          {selectedGames.length > 1
+            ? `Select the environment for "${currentGame.gameName}" (${currentGameIndex + 1} of ${selectedGames.length})`
+            : `Select the environment that best fits your selected game "${currentGame.gameName}".`}
+        </p> */}
+
+        {/* Game navigation for multiple games */}
+
+
+        {/* Show selected environment for current game */}
+        <div className="flex justify-between gap-2 items-center p-1 pl-3 border border-[#e6e6e6] rounded-full">
+          <p className="font-medium text-xs text-[#1f1f1f]">Selected for {currentGame.gameName}</p>
+
+          {selectedEnvironments[currentGame.gameName] ? (
+            <Badge variant="secondary" className="bg-[#f6f6f6] text-[#1f1f1f]">
+              {selectedEnvironments[currentGame.gameName]}
+            </Badge>
+          ) : <p className="font-medium text-xs text-[#1f1f1f] pr-2">No environments selected yet.</p>}
+
+        </div>
+
+
+
+      </div>
+
+      {/* ------- END NEW ------- */}
 
       {/* Environments grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {compatibleEnvironments.map((environment) => (
-          <Card
-            key={environment.name}
-            className={`cursor-pointer transition-all hover:shadow-lg ${
-              selectedEnvironments[currentGame.gameName] === environment.name ? "ring-2 ring-black" : ""
-            }`}
-            onClick={() => handleEnvironmentSelect(currentGame.gameName, environment.name)}
-          >
-            <CardContent className="p-4">
-              {/* Environment Image */}
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                <img
-                  src={getEnvironmentImageUrl(environment.name) || "/placeholder.svg"}
-                  alt={environment.name}
-                  className="w-full h-full object-cover rounded-lg"
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2 mt-2">
+        {compatibleEnvironments.map((environment) => {
+          const checked =
+            selectedEnvironments[currentGame.gameName] === environment.name;
+
+          return (
+            <Card
+              key={environment.name}
+              className={`relative cursor-pointer transition-all hover:shadow-lg ${checked ? "ring-2 ring-black" : ""
+                }`}
+              onClick={() =>
+                handleEnvironmentSelect(currentGame.gameName, environment.name)
+              }
+              role="radio"
+              aria-checked={checked}
+            >
+
+              <div className="absolute left-3 top-3 z-10">
+                <input
+                  type="radio"
+                  name={`env-${currentGame.gameName}`} // grupira radio-e po igri
+                  aria-label={`Select ${environment.name}`}
+                  checked={checked}
+                  onChange={() =>
+                    handleEnvironmentSelect(currentGame.gameName, environment.name)
+                  }
+                  onClick={(e) => e.stopPropagation()} // da klik na radio ne triggira onClick kartice
+                  className="h-4 w-4 accent-black"
                 />
               </div>
 
-              {/* Environment Title and Badge */}
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-lg">{environment.name}</h3>
-                {environment.pricingPackage !== "Bronze" && (
-                  <Badge className={getTierBadgeColor(environment.pricingPackage)}>{environment.pricingPackage}</Badge>
-                )}
-              </div>
-
-              {/* Environment Description */}
-              <p className="text-gray-600 text-sm mb-4">{environment.description}</p>
-
-              {/* Slots Information */}
-              <div className="text-xs text-gray-500 mb-4">
-                <div>Promotional Slots:</div>
-                <div>
-                  1:1 - {environment.slots1x1} | 9:16 - {environment.slots9x16} | 16:9 - {environment.slots16x9}
+              <CardContent className="p-4 pb-0">
+                {/* Environment Image */}
+                <div className="aspect-square bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={getEnvironmentImageUrl(environment.name) || "/placeholder.svg"}
+                    alt={environment.name}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </div>
-              </div>
 
-              {/* Learn More Button */}
-              <Button variant="outline" className="w-full bg-transparent" onClick={(e) => e.stopPropagation()}>
+                {/* Environment Title and Badge */}
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-lg">{environment.name}</h3>
+                  {environment.pricingPackage !== "Bronze" && (
+                    <Badge className={getTierBadgeColor(environment.pricingPackage)}>{environment.pricingPackage}</Badge>
+                  )}
+                </div>
+
+                {/* Environment Description */}
+                <p className="text-gray-600 text-sm mb-4">{environment.description}</p>
+
+                {/* Slots Information */}
+                <div className="text-xs text-gray-500 mb-4">
+                  <div>Promotional Slots:</div>
+                  <div>
+                    1:1 - {environment.slots1x1} | 9:16 - {environment.slots9x16} | 16:9 - {environment.slots16x9}
+                  </div>
+                </div>
+
+                {/* Learn More Button */}
+                {/* <Button variant="outline" className="w-full bg-transparent" onClick={(e) => e.stopPropagation()}>
                 Learn more about the environment
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+              </Button> */}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
       {/* Navigation for multiple games */}

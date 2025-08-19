@@ -24,6 +24,7 @@ const GAMES_DATA = [
     custom3DModels: 0,
     unique2DSlots: 0,
     description: "A fun interactive game where players search for hidden balls in the virtual environment.",
+    link: "https://forceful-manager-624125.framer.app/games/where-is-the-ball"
   },
   {
     name: "Memory",
@@ -32,6 +33,7 @@ const GAMES_DATA = [
     custom3DModels: 0,
     unique2DSlots: 8,
     description: "Test your memory skills with this engaging pattern-matching game.",
+    link: "https://forceful-manager-624125.framer.app/games/memory"
   },
   {
     name: "Simon Says",
@@ -40,6 +42,7 @@ const GAMES_DATA = [
     custom3DModels: 0,
     unique2DSlots: 0,
     description: "Follow the sequence and test your attention with this classic game.",
+    link: "https://forceful-manager-624125.framer.app/games/simon-says"
   },
   {
     name: "Branded objects hunt",
@@ -48,6 +51,7 @@ const GAMES_DATA = [
     custom3DModels: 3,
     unique2DSlots: 0,
     description: "Hunt for branded objects in immersive environments with custom 3D models.",
+    link: "https://forceful-manager-624125.framer.app/games/branded-objects-hunt"
   },
   {
     name: "Wheel of fortune",
@@ -56,6 +60,8 @@ const GAMES_DATA = [
     custom3DModels: 0,
     unique2DSlots: 5,
     description: "Spin the wheel and win prizes in this exciting game of chance.",
+    link: "https://forceful-manager-624125.framer.app/games/wheel-of-fortune"
+
   },
   {
     name: "Product Inspection",
@@ -64,6 +70,8 @@ const GAMES_DATA = [
     custom3DModels: 3,
     unique2DSlots: 0,
     description: "Inspect and examine products in detail using VR technology.",
+    link: "https://forceful-manager-624125.framer.app/games/product-inspection"
+
   },
   {
     name: "Build the product",
@@ -72,6 +80,8 @@ const GAMES_DATA = [
     custom3DModels: 3,
     unique2DSlots: 0,
     description: "Assemble products step by step in an interactive virtual environment.",
+    link: "https://forceful-manager-624125.framer.app/games/build-the-product"
+
   },
   {
     name: "Whack a mole",
@@ -80,6 +90,8 @@ const GAMES_DATA = [
     custom3DModels: 0,
     unique2DSlots: 0,
     description: "Classic whack-a-mole game with VR immersion and haptic feedback.",
+    link: "https://forceful-manager-624125.framer.app/games/whack-a-mole"
+
   },
 ]
 
@@ -304,29 +316,28 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
           </div>
         </div>
 
-        <p className="text-gray-600 mb-8">
+        {/* <p className="text-gray-600 mb-8">
           {showSecondGameSelection
             ? "Select your second game to complete your Gold package selection."
             : "Select from our collection of VR games for your event."}
-        </p>
+        </p> */}
 
         {/* Show selected games */}
-        {selectedGames.length > 0 && (
-          <div className="flex gap-2 items-center p-1 border border-[#e6e6e6] rounded-full">
-            <div className="flex flex-wrap gap-2">
-              {selectedGames.map((gameName) => (
-                <Badge key={gameName} variant="secondary" className="bg-[#f6f6f6] text-[#1f1f1f]">
-                  {gameName}
-                </Badge>
-              ))}
-            </div>
-            {selectOneMoreGame && (
 
-              <Badge className={getTierBadgeColor("Gold")}>Gold - Multiple Games</Badge>
-
-            )}
+        <div className="flex justify-between items-center p-1 border border-[#e6e6e6] rounded-full">
+          <div className="flex flex-wrap gap-2">
+            {selectedGames.length > 0 ? selectedGames.map((gameName) => (
+              <Badge key={gameName} variant="secondary" className="bg-[#f6f6f6] text-[#1f1f1f]">
+                {gameName}
+              </Badge>
+            )) : <p className="font-medium text-xs text-[#1f1f1f] pl-2">No games selected yet.</p>}
           </div>
-        )}
+          {selectOneMoreGame && (
+            <Badge className={getTierBadgeColor("Gold")}>Gold - Multiple Games</Badge>
+
+          )}
+        </div>
+
 
       </div>
 
@@ -400,7 +411,10 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
                 <p className="text-gray-600 text-sm mb-4">{game.description}</p>
 
                 {/* Learn More Button */}
-                <Button variant="outline" className="w-full bg-transparent" onClick={(e) => e.stopPropagation()}>
+                <Button variant="outline" className="w-full bg-transparent cursor-pointer" onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(game.link, "_blank", "noopener,noreferrer")
+                }}>
                   Learn more about the game
                 </Button>
               </CardContent>
