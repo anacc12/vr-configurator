@@ -164,7 +164,7 @@ export function Step6AdditionalOptions({ orderId, onDataChange, onValidationChan
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-6xl">
       <h2 className="text-2xl font-bold mb-6">Additional Options</h2>
       <p className="text-gray-600 mb-8">
         Enhance your VR experience with additional features. All options are optional and can be added to any package.

@@ -203,7 +203,7 @@ export function Step4ChooseDevice({ orderId, onDataChange, onValidationChange }:
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-6xl">
       <h2 className="text-2xl font-bold mb-6">Choose Your Device</h2>
       <p className="text-gray-600 mb-8">Select the VR headsets for your event and specify the number of event days.</p>
 

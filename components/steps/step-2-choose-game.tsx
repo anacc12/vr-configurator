@@ -7,6 +7,8 @@ import { Badge } from "../ui/badge"
 import { localDB } from "@/lib/local-db"
 import type { OrderGame } from "@/lib/database"
 import { recalculateOrderTier } from "@/lib/database"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@radix-ui/react-label"
 
 interface Step2ChooseGameProps {
   orderId: string
@@ -89,6 +91,31 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
 
   const lastValidationRef = useRef<boolean | null>(null)
 
+  // treat selectOneMoreGame as the multi-select flag
+  const isMulti = selectOneMoreGame;
+
+  // single source for saving + side-effects
+  const applySelection = async (next: string[]) => {
+    setSelectedGames(next);
+
+    const orderGames: Omit<OrderGame, "orderId">[] = next.map((gameName) => {
+      const g = GAMES_DATA.find((x) => x.name === gameName)!;
+      return {
+        gameName,
+        pricingPackage: g.pricingPackage,
+        compatibleEnvironments: g.compatibleEnvironments,
+        custom3DModels: g.custom3DModels,
+        unique2DSlots: g.unique2DSlots,
+      };
+    });
+
+    await localDB.saveOrderGames(orderId, orderGames);
+    await recalculateOrderTier(orderId);
+    onDataChange();
+  };
+
+
+
   useEffect(() => {
     // Load existing data
     const loadGameData = async () => {
@@ -122,29 +149,61 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
     }
   }
 
-  const handleGameSelect = async (gameName: string) => {
-    let newSelectedGames: string[]
+  // const handleGameSelect = async (gameName: string) => {
+  //   let newSelectedGames: string[]
 
-    if (showSecondGameSelection) {
-      newSelectedGames = [selectedGames[0], gameName]
-      setShowSecondGameSelection(false)
-    } else {
-      // Selecting first game
-      newSelectedGames = [gameName]
+  //   if (showSecondGameSelection) {
+  //     newSelectedGames = [selectedGames[0], gameName]
+  //     setShowSecondGameSelection(false)
+  //   } else {
+  //     // Selecting first game
+  //     newSelectedGames = [gameName]
+  //   }
+
+  //   setSelectedGames(newSelectedGames)
+  //   await saveGameSelection(newSelectedGames)
+  //   onDataChange() // Added onDataChange call to trigger order summary refresh when games are selected
+  // }
+
+  const handleGameSelect = async (gameName: string) => {
+    const isAlready = selectedGames.includes(gameName);
+
+    // UNSELECT (radi i u single i u multi modu)
+    if (isAlready) {
+      const next = selectedGames.filter((g) => g !== gameName);
+      await applySelection(next);
+      return;
     }
 
-    setSelectedGames(newSelectedGames)
-    await saveGameSelection(newSelectedGames)
-    onDataChange() // Added onDataChange call to trigger order summary refresh when games are selected
-  }
+    // SELECT
+    if (!isMulti) {
+      // single select: nova zamjenjuje staru
+      const next = [gameName];
+      await applySelection(next);
+      return;
+    }
+
+    // multi: max 2
+    if (selectedGames.length < 2) {
+      const next = [...selectedGames, gameName];
+      await applySelection(next);
+      return;
+    }
+
+    // ako je već 2, ignoriraj (disable u UI-ju ionako sprječava)
+  };
+
 
   const handleSelectOneMoreGame = async () => {
     setSelectOneMoreGame(true)
     setShowSecondGameSelection(true)
 
-    await saveGameSelection(selectedGames, true) // Pass flag to indicate Gold tier selection
-    onDataChange()
+    if (selectedGames.length > 0) {
+      await saveGameSelection(selectedGames, true)
+      onDataChange()
+    }
   }
+
 
   const handleChooseOnlyOneGame = async () => {
     setSelectOneMoreGame(false)
@@ -159,6 +218,7 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
   const saveGameSelection = async (games: string[], isMultipleGamesSelection = false) => {
     const orderGames: Omit<OrderGame, "orderId">[] = games.map((gameName) => {
       const gameData = GAMES_DATA.find((g) => g.name === gameName)!
+
       return {
         gameName,
         pricingPackage: gameData.pricingPackage,
@@ -173,12 +233,15 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
     await recalculateOrderTier(orderId) // Always recalculate tier based on current selections instead of hardcoding Gold
   }
 
-  const getAvailableGames = () => {
-    if (showSecondGameSelection) {
-      return GAMES_DATA.filter((game) => !selectedGames.includes(game.name))
-    }
-    return GAMES_DATA
-  }
+  // const getAvailableGames = () => {
+  //   if (showSecondGameSelection) {
+  //     return GAMES_DATA.filter((game) => !selectedGames.includes(game.name))
+  //   }
+  //   return GAMES_DATA
+  // }
+
+  const getAvailableGames = () => GAMES_DATA;
+
 
   const getGameImageUrl = (gameName: string) => {
     const imageMap: Record<string, string> = {
@@ -208,108 +271,142 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
   }
 
   return (
-    <div className="max-w-4xl">
-      <h2 className="text-2xl font-bold mb-6">Choose Your Game</h2>
-      <p className="text-gray-600 mb-8">
-        {showSecondGameSelection
-          ? "Select your second game to complete your Gold package selection."
-          : "Select from our collection of VR games for your event."}
-      </p>
+    <div className="max-w-6xl">
 
-      {/* Show selected games */}
-      {selectedGames.length > 0 && !showSecondGameSelection && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <h3 className="font-semibold text-green-800 mb-2">Selected Games:</h3>
-          <div className="flex flex-wrap gap-2">
-            {selectedGames.map((gameName) => (
-              <Badge key={gameName} variant="secondary" className="bg-green-100 text-green-800">
-                {gameName}
-              </Badge>
-            ))}
+
+      <div className="!sticky !top-25 z-[40] bg-white border-null b-0 pt-4 pb-4 w-full">
+        <div className="flex justify-between w-full items-center mb-6">
+          <h2 className="text-2xl font-bold">Choose Your Game</h2>
+          <div className="flex items-center space-x-2">
+            <Switch id="multi-game"
+              checked={selectOneMoreGame || showSecondGameSelection}
+              onCheckedChange={async (checked) => {
+                if (checked) {
+                  // uključi multi, zadrži postojeći izbor (ako nema ničeg, user može izabrati 2)
+                  setSelectOneMoreGame(true);
+                  setShowSecondGameSelection(selectedGames.length < 2); // samo za poruku
+                } else {
+                  // isključuješ multi: po specifikaciji — ako su 2 selektane, očisti sve
+                  setSelectOneMoreGame(false);
+                  setShowSecondGameSelection(false);
+
+                  if (selectedGames.length === 2 || selectedGames.length === 0) {
+                    await applySelection([]); // oba se unselectaju ili ostaje prazno
+                  } else if (selectedGames.length === 1) {
+                    // dozvoljeno je ostaviti 1 (ako to želiš striktno očistiti, zamijeni s [])
+                    await applySelection([selectedGames[0]]);
+                  }
+                }
+              }}
+
+            />
+            <Label htmlFor="airplane-mode">More than 1 game</Label>
           </div>
-          {selectOneMoreGame && (
-            <div className="mt-2">
-              <Badge className={getTierBadgeColor("Gold")}>Gold Package - Multiple Games</Badge>
+        </div>
+
+        <p className="text-gray-600 mb-8">
+          {showSecondGameSelection
+            ? "Select your second game to complete your Gold package selection."
+            : "Select from our collection of VR games for your event."}
+        </p>
+
+        {/* Show selected games */}
+        {selectedGames.length > 0 && (
+          <div className="flex gap-2 items-center p-1 border border-[#e6e6e6] rounded-full">
+            <div className="flex flex-wrap gap-2">
+              {selectedGames.map((gameName) => (
+                <Badge key={gameName} variant="secondary" className="bg-[#f6f6f6] text-[#1f1f1f]">
+                  {gameName}
+                </Badge>
+              ))}
             </div>
-          )}
-        </div>
-      )}
+            {selectOneMoreGame && (
 
-      {/* Select one more game option */}
-      {!selectOneMoreGame && selectedGames.length === 1 && !showSecondGameSelection && (
-        <div className="mb-6">
-          <Card className="border-yellow-200 bg-yellow-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="selectOneMore"
-                    className="w-4 h-4"
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        handleSelectOneMoreGame()
-                      }
-                    }}
-                  />
-                  <label htmlFor="selectOneMore" className="font-medium">
-                    Select one more game
-                  </label>
-                  <Badge className={getTierBadgeColor("Gold")}>Gold</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              <Badge className={getTierBadgeColor("Gold")}>Gold - Multiple Games</Badge>
 
-      {/* Back to single game selection */}
-      {showSecondGameSelection && (
-        <div className="mb-6">
-          <Button variant="outline" onClick={handleChooseOnlyOneGame}>
-            Choose only 1 game
-          </Button>
-        </div>
-      )}
+            )}
+          </div>
+        )}
+
+      </div>
+
 
       {/* Games grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {getAvailableGames().map((game) => (
-          <Card
-            key={game.name}
-            className={`cursor-pointer transition-all hover:shadow-lg ${
-              selectedGames.includes(game.name) ? "ring-2 ring-black" : ""
-            }`}
-            onClick={() => handleGameSelect(game.name)}
-          >
-            <CardContent className="p-4">
-              {/* Game Image */}
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                <img
-                  src={getGameImageUrl(game.name) || "/placeholder.svg"}
-                  alt={game.name}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2 mt-2">
+        {getAvailableGames().map((game) => {
+          const checked = selectedGames.includes(game.name)
+          const disablePick = isMulti && selectedGames.length >= 2 && !checked
 
-              {/* Game Title and Badge */}
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-lg">{game.name}</h3>
-                {game.pricingPackage !== "Bronze" && (
-                  <Badge className={getTierBadgeColor(game.pricingPackage)}>{game.pricingPackage}</Badge>
-                )}
-              </div>
+          return (
+            // <Card
+            //   key={game.name}
+            //   className={`cursor-pointer transition-all hover:shadow-lg ${selectedGames.includes(game.name) ? "ring-2 ring-black" : ""
+            //     }`}
+            //   onClick={() => handleGameSelect(game.name)}
+            // >
 
-              {/* Game Description */}
-              <p className="text-gray-600 text-sm mb-4">{game.description}</p>
+            <Card
+              key={game.name}
+              className={`relative cursor-pointer transition-all hover:shadow-lg
+    ${checked ? "ring-2 ring-black" : ""}
+    ${disablePick ? "opacity-60 pointer-events-none" : ""}
+  `}
+              onClick={() => handleGameSelect(game.name)}
+            >
 
-              {/* Learn More Button */}
-              <Button variant="outline" className="w-full bg-transparent" onClick={(e) => e.stopPropagation()}>
-                Learn more about the game
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+              <CardContent className="p-4">
+                {/* Game Image */}
+                {/* top-left check control */}
+                <div className="absolute left-3 top-3 z-10">
+                  {isMulti ? (
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${game.name}`}
+                      checked={checked}
+                      disabled={disablePick}
+                      onChange={() => handleGameSelect(game.name)}
+                      className="h-4 w-4 accent-black"
+                    />
+                  ) : (
+                    <input
+                      type="radio"
+                      name="game-single"
+                      aria-label={`Select ${game.name}`}
+                      checked={checked}
+                      onChange={() => handleGameSelect(game.name)}
+                      className="h-4 w-4 accent-black"
+                    />
+                  )}
+                </div>
+
+                <div className="aspect-square bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+
+                  <img
+                    src={getGameImageUrl(game.name) || "/placeholder.svg"}
+                    alt={game.name}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+
+                {/* Game Title and Badge */}
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-lg">{game.name}</h3>
+                  {game.pricingPackage !== "Bronze" && (
+                    <Badge className={getTierBadgeColor(game.pricingPackage)}>{game.pricingPackage}</Badge>
+                  )}
+                </div>
+
+                {/* Game Description */}
+                <p className="text-gray-600 text-sm mb-4">{game.description}</p>
+
+                {/* Learn More Button */}
+                <Button variant="outline" className="w-full bg-transparent" onClick={(e) => e.stopPropagation()}>
+                  Learn more about the game
+                </Button>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
     </div>
   )

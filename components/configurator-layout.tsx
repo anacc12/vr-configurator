@@ -137,9 +137,9 @@ export function ConfiguratorLayout({ orderId, currentStep, onStepChange }: Confi
       case "tablet":
         return "w-80"
       case "desktop":
-        return "w-96"
+        return "w-90"
       default:
-        return "w-96"
+        return "w-90"
     }
   }
 
@@ -160,12 +160,7 @@ export function ConfiguratorLayout({ orderId, currentStep, onStepChange }: Confi
       {/* Progress Bar - Sticky at top */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
         <ProgressBar currentStep={currentStep} />
-        <div
-          className="h-1 w-full"
-          style={{
-            background: "linear-gradient(to right, #ff7875, #e91e63)",
-          }}
-        />
+       
       </div>
 
       {/* Main Content Area */}
@@ -173,7 +168,7 @@ export function ConfiguratorLayout({ orderId, currentStep, onStepChange }: Confi
         {/* Desktop/Tablet Order Summary - Left Panel */}
         {screenSize !== "mobile" && (
           <div className={`${getLeftPanelWidth()} border-r border-border bg-card/50 flex-shrink-0`}>
-            <div className="sticky top-20 h-[calc(100vh-10rem)] overflow-y-auto p-4">
+            <div className="sticky top-0 h-full overflow-y-auto">
               <OrderSummary orderId={orderId} order={order} />
             </div>
           </div>
@@ -207,8 +202,8 @@ export function ConfiguratorLayout({ orderId, currentStep, onStepChange }: Confi
 
         {/* Main Content */}
         <div className={`flex-1 flex flex-col min-w-0 ${screenSize === "mobile" ? "mt-16" : ""}`}>
-          <div className="flex-1 p-6 sm:p-8 lg:p-12 overflow-y-auto">
-            <div className="max-w-5xl mx-auto">
+          <div className="flex-1 p-4 sm:p-4 lg:p-4 relative">
+            <div className="max-w-6xl mx-auto">
               <StepContent
                 orderId={orderId}
                 currentStep={currentStep}

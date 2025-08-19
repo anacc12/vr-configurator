@@ -115,7 +115,7 @@ export const Step5Custom3D = forwardRef<Step5ValidationRef, Step5Custom3DProps>(
     wantsCustom3D === true && modelCount === 0 ? "Please select the number of 3D models you want to showcase" : ""
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-6xl">
       <h2 className="text-2xl font-bold mb-6">Custom 3D Models</h2>
       <p className="text-gray-600 mb-8">Add custom 3D models of your products to showcase in VR.</p>
 

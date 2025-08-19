@@ -204,7 +204,7 @@ export function Step7OrderOverview({
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-6xl">
       <h2 className="text-2xl font-bold mb-6">Order Overview</h2>
       <p className="text-gray-600 mb-8">
         Review your configuration and finalize your order. Click on any section to make changes.

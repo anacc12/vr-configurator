@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"lib/database.ts -> ./local-db\":{\"id\":\"lib/database.ts -> ./local-db\",\"files\":[]},\"lib/database.ts -> ./pricing-calculator\":{\"id\":\"lib/database.ts -> ./pricing-calculator\",\"files\":[]}}"

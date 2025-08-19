@@ -152,7 +152,7 @@ export function OrderSummary({ orderId, order }: OrderSummaryProps) {
   }
 
   return (
-    <div className={`sticky top-4 p-6 h-fit rounded-xl ${getTierColor(currentTier)} backdrop-blur-sm relative`}>
+    <div className={`sticky top-1 p-6 h-full w-full bg-[#F6F6F6] backdrop-blur-sm relative`}>
       {currentTier !== "Bronze" && (
         <div className="absolute top-4 right-4">
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getTierBadgeColor(currentTier)}`}>
