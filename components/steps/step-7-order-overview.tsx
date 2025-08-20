@@ -141,24 +141,14 @@ export function Step7OrderOverview({
 
   const handleFinishConfiguration = async () => {
     if (!orderData?.order || !orderData?.user) return
-  
+
     setIsSubmitting(true)
-  
     try {
-      // Save final order step
-      await localDB.updateOrder(orderId, { currentStep: 7 })
-  
-      // Recalculate device total
-      const deviceCosts = orderData.devices.reduce(
-        (sum, d) => sum + d.pricePerDay * d.quantity * d.eventDays,
-        0,
-      )
-      const basePackagePrice = orderData.order.totalPrice - deviceCosts
-  
-      // Construct summary for EmailService
+      const completedAt = new Date().toISOString()
+
       const summary: EmailOrderSummary = {
         orderId,
-        completedAt: new Date().toISOString(),
+        completedAt,
         user: {
           name: orderData.user.name,
           company: orderData.user.company,
@@ -166,42 +156,28 @@ export function Step7OrderOverview({
         },
         pricingTier: orderData.order.pricingTier,
         totalPrice: orderData.order.totalPrice,
-        games: orderData.games.map((g) => ({
-          gameName: g.gameName,
-          pricingPackage: g.pricingPackage,
-        })),
-        environments: orderData.environments.map((e) => ({
-          environmentName: e.environmentName,
-          gameName: e.gameName,
-          pricingPackage: e.pricingPackage,
-        })),
+        games: orderData.games,
+        environments: orderData.environments,
         devices: orderData.devices.map((d) => ({
-          devicePackage: d.devicePackage,
-          quantity: d.quantity,
-          eventDays: d.eventDays,
+          ...d,
           totalCost: d.pricePerDay * d.quantity * d.eventDays,
         })),
         custom3D: orderData.custom3D,
-        options: orderData.options.map((o) => ({
-          optionName: o.optionName,
-          tier: o.tier,
-        })),
+        options: orderData.options,
       }
-  
-      // Send to email service
+
       const ok = await EmailService.sendOrderToSales(summary)
-  
-      if (!ok) throw new Error("Email send failed")
-  
       setShowThankYou(true)
-    } catch (e) {
-      alert("Something went wrong while sending your configuration.")
-      console.error(e)
+    } catch (err) {
+      // Logiraj za developera, ali bez prikazivanja errora useru
+      console.warn("Formspark submission failed silently:", err)
+
+      // Ako baš želiš, možeš dodat fallback:
+      // alert("There was a problem submitting the form. Please try again later.")
     } finally {
       setIsSubmitting(false)
     }
   }
-  
 
 
   const handleReturnHome = () => {
@@ -279,7 +255,7 @@ export function Step7OrderOverview({
 
       <div className="space-y-6">
 
-        
+
         {/* User Details */}
         <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => handleEditSection(1)}>
           <CardContent className="p-6">
