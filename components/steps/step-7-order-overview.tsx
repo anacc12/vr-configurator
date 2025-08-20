@@ -17,6 +17,7 @@ import type {
   OrderCustom3D,
   OrderOption,
 } from "@/lib/database"
+import { generateOrderSummaryPDF } from "@/lib/pdf-summary"
 
 interface Step7OrderOverviewProps {
   orderId: string
@@ -186,30 +187,37 @@ export function Step7OrderOverview({
     window.location.reload()
   }
 
-  const downloadOrderSummary = () => {
+  const downloadOrderSummary = async () => {
     if (!orderData) return
-
-    const summary = {
+  
+    const summary: EmailOrderSummary = {
       orderId,
       completedAt: new Date().toISOString(),
-      pricingTier: orderData.order?.pricingTier,
-      totalPrice: orderData.order?.totalPrice,
-      user: orderData.user,
+      user: {
+        name: orderData.user? orderData.user.name : "Name undefined",
+        company: orderData.user? orderData.user.company : "Company undefined",
+        email: orderData.user? orderData.user.email : "Email undefined",
+      },
+      pricingTier: orderData.order!.pricingTier,
+      totalPrice: orderData.order!.totalPrice,
       games: orderData.games,
       environments: orderData.environments,
-      devices: orderData.devices,
+      devices: orderData.devices.map((d) => ({
+        ...d,
+        totalCost: d.pricePerDay * d.quantity * d.eventDays,
+      })),
       custom3D: orderData.custom3D,
       options: orderData.options,
     }
-
-    const blob = new Blob([JSON.stringify(summary, null, 2)], { type: "application/json" })
+  
+    const pdfBytes = await generateOrderSummaryPDF(summary)
+    const blob = new Blob([pdfBytes], { type: "application/pdf" })
     const url = URL.createObjectURL(blob)
+  
     const a = document.createElement("a")
     a.href = url
-    a.download = `vr-configurator-order-${orderId.slice(0, 8)}.json`
-    document.body.appendChild(a)
+    a.download = `vr-configurator-order-${orderId.slice(0, 8)}.pdf`
     a.click()
-    document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
 
