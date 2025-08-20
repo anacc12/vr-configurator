@@ -56,50 +56,8 @@ export class EmailService {
     const basePrice = summary.totalPrice - deviceCosts;
 
     const message = `
-🧾 VR Configurator Order
-
 🆔 Order ID: ${summary.orderId}
-🏷️ Pricing Tier: ${summary.pricingTier}
-💰 Total Price: ${formatPrice(summary.totalPrice)}
-📅 Completed At: ${new Date(summary.completedAt).toLocaleString()}
-
-👤 Customer Info:
-- Name: ${summary.user.name}
-- Company: ${summary.user.company}
-- Email: ${summary.user.email}
-
-🎮 Games:
-${summary.games.map((g) => `- ${g.gameName} (${g.pricingPackage})`).join("\n")}
-
-🌍 Environments:
-${summary.environments.map((e) => `- ${e.environmentName} → ${e.gameName} (${e.pricingPackage})`).join("\n")}
-
-📦 Devices:
-${summary.devices.map((d) =>
-  `- ${d.devicePackage} ×${d.quantity} @ ${formatPrice(
-    d.totalCost / (d.quantity * d.eventDays)
-  )}/day for ${d.eventDays} days = ${formatPrice(d.totalCost)}`
-).join("\n")}
-
-🧱 Custom 3D:
-${
-  summary.custom3D && summary.custom3D.additional3DModels > 0
-    ? `- ${summary.custom3D.additional3DModels} additional model(s)`
-    : "- No custom 3D models"
-}
-
-🧩 Options:
-${
-  summary.options.length > 0
-    ? summary.options.map((o) => `- ${o.optionName} (${o.tier})`).join("\n")
-    : "- No additional options"
-}
-
-📊 Pricing Breakdown:
-- Base Package: ${formatPrice(basePrice)}
-- Device Rental: ${formatPrice(deviceCosts)}
-- Total: ${formatPrice(summary.totalPrice)}
-    `.trim();
+📅 Completed At: ${new Date(summary.completedAt).toLocaleString()} `;
 
     const formData = new URLSearchParams();
 
@@ -175,6 +133,8 @@ ${
 
     // Email reply address
     formData.append("_replyto", summary.user.email);
+    formData.append("_subject", `🟣 VR Configurator – Order ${summary.orderId}`);
+
 
     try {
       const res = await fetch(FORMSPARK_URL, {
