@@ -1,6 +1,10 @@
 // Email service for sending order summaries to sales team
 // This provides a mock implementation that can be easily replaced with real email service
 
+const FORMSPARK_FORM_ID = process.env.NEXT_PUBLIC_FORMSPARK_FORM_ID || "a0nLwysz5";
+const FORMSPARK_URL = `https://submit-form.com/${FORMSPARK_FORM_ID}`;
+
+
 export interface EmailOrderSummary {
   orderId: string
   completedAt: string
@@ -227,45 +231,113 @@ export class EmailService {
     `
   }
 
+  // static async sendOrderToSales(summary: EmailOrderSummary): Promise<boolean> {
+  //   try {
+  //     // In a real implementation, this would use a service like SendGrid, AWS SES, or similar
+  //     // For now, we'll simulate the email sending and log the content
+
+  //     const emailHTML = this.generateEmailHTML(summary)
+  //     const emailText = this.generateEmailText(summary)
+
+  //     console.log("=== EMAIL TO SALES TEAM ===")
+  //     console.log("To: sales@company.com")
+  //     console.log("Subject: New VR Configurator Order - " + summary.orderId)
+  //     console.log("HTML Content:", emailHTML)
+  //     console.log("Text Content:", emailText)
+  //     console.log("=== END EMAIL ===")
+
+  //     // Simulate API call delay
+  //     await new Promise((resolve) => setTimeout(resolve, 1000))
+
+  //     // In production, replace this with actual email service:
+  //     /*
+  //     const response = await fetch('/api/send-email', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         to: 'sales@company.com',
+  //         subject: `New VR Configurator Order - ${summary.orderId}`,
+  //         html: emailHTML,
+  //         text: emailText
+  //       })
+  //     });
+  //     return response.ok;
+  //     */
+
+  //     return true // Simulate successful send
+  //   } catch (error) {
+  //     console.error("Failed to send email to sales team:", error)
+  //     return false
+  //   }
+  // }
+
+
   static async sendOrderToSales(summary: EmailOrderSummary): Promise<boolean> {
+    const FORMSPARK_URL = "https://submit-form.com/a0nLwysz5";
+  
+    const message = [
+      `VR Configurator Order`,
+      `Order ID: ${summary.orderId}`,
+      `Pricing tier: ${summary.pricingTier}`,
+      `Total price: ${EmailService.formatPrice(summary.totalPrice)}`,
+      "",
+      `— Customer Name: ${summary.user.name}`,
+      `Company: ${summary.user.company}`,
+      `Email: ${summary.user.email}`,
+      "",
+      `— Games:`,
+      ...summary.games.map((g) => `- ${g.gameName} (${g.pricingPackage})`),
+      "",
+      `— Environments:`,
+      ...summary.environments.map(
+        (e) => `- ${e.environmentName} → ${e.gameName} (${e.pricingPackage})`
+      ),
+      "",
+      `— Devices:`,
+      ...summary.devices.map(
+        (d) => `- ${d.devicePackage} ×${d.quantity} @ $${d.totalCost / d.quantity} (${d.eventDays}d)`
+      ),
+      "",
+      `— Options:`,
+      ...summary.options.map((o) => `- ${o.optionName} (${o.tier})`),
+      "",
+      `JSON payload is attached below in the submission.`,
+    ].join(" — ");
+  
+    const formData = new URLSearchParams();
+    formData.append("message", message);
+    formData.append("orderId", summary.orderId);
+    formData.append("pricingTier", summary.pricingTier);
+    formData.append("totalPrice", summary.totalPrice.toString());
+    formData.append("currentStep", "7");
+    formData.append("_replyto", summary.user.email);
+    formData.append("user", JSON.stringify(summary.user));
+    formData.append("games", JSON.stringify(summary.games));
+    formData.append("environments", JSON.stringify(summary.environments));
+    formData.append("devices", JSON.stringify(summary.devices));
+    formData.append("custom3D", JSON.stringify(summary.custom3D));
+    formData.append("options", JSON.stringify(summary.options));
+  
     try {
-      // In a real implementation, this would use a service like SendGrid, AWS SES, or similar
-      // For now, we'll simulate the email sending and log the content
-
-      const emailHTML = this.generateEmailHTML(summary)
-      const emailText = this.generateEmailText(summary)
-
-      console.log("=== EMAIL TO SALES TEAM ===")
-      console.log("To: sales@company.com")
-      console.log("Subject: New VR Configurator Order - " + summary.orderId)
-      console.log("HTML Content:", emailHTML)
-      console.log("Text Content:", emailText)
-      console.log("=== END EMAIL ===")
-
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // In production, replace this with actual email service:
-      /*
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: 'sales@company.com',
-          subject: `New VR Configurator Order - ${summary.orderId}`,
-          html: emailHTML,
-          text: emailText
-        })
+      const res = await fetch(FORMSPARK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
       });
-      return response.ok;
-      */
-
-      return true // Simulate successful send
-    } catch (error) {
-      console.error("Failed to send email to sales team:", error)
-      return false
+  
+      if (!res.ok) {
+        throw new Error("Formspark 404");
+      }
+  
+      return true;
+    } catch (err) {
+      console.error("Failed to send email (Formspark):", err);
+      return false;
     }
   }
+  
 
   private static generateEmailText(summary: EmailOrderSummary): string {
     const deviceCosts = summary.devices.reduce((sum, device) => sum + device.totalCost, 0)

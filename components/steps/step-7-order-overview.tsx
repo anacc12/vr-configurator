@@ -6,6 +6,8 @@ import { Card, CardContent } from "../ui/card"
 import { Badge } from "../ui/badge"
 import { localDB } from "@/lib/local-db"
 import { EmailService, type EmailOrderSummary } from "@/lib/email-service"
+// import { sendOrderToFormspark } from "@/lib/formspark"
+
 import type {
   Order,
   OrderUser,
@@ -80,20 +82,83 @@ export function Step7OrderOverview({
     onStepChange(step)
   }
 
+  // const handleFinishConfiguration = async () => {
+  //   if (!orderData?.order || !orderData?.user) return
+
+  //   setIsSubmitting(true)
+
+  //   try {
+  //     // Save final order summary
+  //     const completedAt = new Date().toISOString()
+  //     await localDB.updateOrder(orderId, { currentStep: 7 })
+
+  //     // Prepare email summary
+  //     const emailSummary: EmailOrderSummary = {
+  //       orderId,
+  //       completedAt,
+  //       user: {
+  //         name: orderData.user.name,
+  //         company: orderData.user.company,
+  //         email: orderData.user.email,
+  //       },
+  //       pricingTier: orderData.order.pricingTier,
+  //       totalPrice: orderData.order.totalPrice,
+  //       games: orderData.games.map((game) => ({
+  //         gameName: game.gameName,
+  //         pricingPackage: game.pricingPackage,
+  //       })),
+  //       environments: orderData.environments.map((env) => ({
+  //         environmentName: env.environmentName,
+  //         gameName: env.gameName,
+  //         pricingPackage: env.pricingPackage,
+  //       })),
+  //       devices: orderData.devices.map((device) => ({
+  //         devicePackage: device.devicePackage,
+  //         quantity: device.quantity,
+  //         eventDays: device.eventDays,
+  //         totalCost: device.pricePerDay * device.quantity * device.eventDays,
+  //       })),
+  //       custom3D: orderData.custom3D,
+  //       options: orderData.options,
+  //     }
+
+  //     // Send email to sales team
+  //     const emailSent = await EmailService.sendOrderToSales(emailSummary)
+
+  //     if (emailSent) {
+  //       console.log("Order summary sent to sales team successfully")
+  //     } else {
+  //       console.warn("Failed to send order summary to sales team")
+  //     }
+
+  //     setShowThankYou(true)
+  //   } catch (error) {
+  //     console.error("Error finishing configuration:", error)
+  //   } finally {
+  //     setIsSubmitting(false)
+  //   }
+  // }
+
   const handleFinishConfiguration = async () => {
     if (!orderData?.order || !orderData?.user) return
-
+  
     setIsSubmitting(true)
-
+  
     try {
-      // Save final order summary
-      const completedAt = new Date().toISOString()
+      // Save final order step
       await localDB.updateOrder(orderId, { currentStep: 7 })
-
-      // Prepare email summary
-      const emailSummary: EmailOrderSummary = {
+  
+      // Recalculate device total
+      const deviceCosts = orderData.devices.reduce(
+        (sum, d) => sum + d.pricePerDay * d.quantity * d.eventDays,
+        0,
+      )
+      const basePackagePrice = orderData.order.totalPrice - deviceCosts
+  
+      // Construct summary for EmailService
+      const summary: EmailOrderSummary = {
         orderId,
-        completedAt,
+        completedAt: new Date().toISOString(),
         user: {
           name: orderData.user.name,
           company: orderData.user.company,
@@ -101,41 +166,43 @@ export function Step7OrderOverview({
         },
         pricingTier: orderData.order.pricingTier,
         totalPrice: orderData.order.totalPrice,
-        games: orderData.games.map((game) => ({
-          gameName: game.gameName,
-          pricingPackage: game.pricingPackage,
+        games: orderData.games.map((g) => ({
+          gameName: g.gameName,
+          pricingPackage: g.pricingPackage,
         })),
-        environments: orderData.environments.map((env) => ({
-          environmentName: env.environmentName,
-          gameName: env.gameName,
-          pricingPackage: env.pricingPackage,
+        environments: orderData.environments.map((e) => ({
+          environmentName: e.environmentName,
+          gameName: e.gameName,
+          pricingPackage: e.pricingPackage,
         })),
-        devices: orderData.devices.map((device) => ({
-          devicePackage: device.devicePackage,
-          quantity: device.quantity,
-          eventDays: device.eventDays,
-          totalCost: device.pricePerDay * device.quantity * device.eventDays,
+        devices: orderData.devices.map((d) => ({
+          devicePackage: d.devicePackage,
+          quantity: d.quantity,
+          eventDays: d.eventDays,
+          totalCost: d.pricePerDay * d.quantity * d.eventDays,
         })),
         custom3D: orderData.custom3D,
-        options: orderData.options,
+        options: orderData.options.map((o) => ({
+          optionName: o.optionName,
+          tier: o.tier,
+        })),
       }
-
-      // Send email to sales team
-      const emailSent = await EmailService.sendOrderToSales(emailSummary)
-
-      if (emailSent) {
-        console.log("Order summary sent to sales team successfully")
-      } else {
-        console.warn("Failed to send order summary to sales team")
-      }
-
+  
+      // Send to email service
+      const ok = await EmailService.sendOrderToSales(summary)
+  
+      if (!ok) throw new Error("Email send failed")
+  
       setShowThankYou(true)
-    } catch (error) {
-      console.error("Error finishing configuration:", error)
+    } catch (e) {
+      alert("Something went wrong while sending your configuration.")
+      console.error(e)
     } finally {
       setIsSubmitting(false)
     }
   }
+  
+
 
   const handleReturnHome = () => {
     // Clear current order and return to start
@@ -211,6 +278,8 @@ export function Step7OrderOverview({
       </p>
 
       <div className="space-y-6">
+
+        
         {/* User Details */}
         <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => handleEditSection(1)}>
           <CardContent className="p-6">
