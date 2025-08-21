@@ -7,13 +7,13 @@ interface ProgressBarProps {
 }
 
 const STEPS = [
-  { number: 1, title: "Your Details", shortTitle: "Details" },
-  { number: 2, title: "Choose Game", shortTitle: "Game" },
-  { number: 3, title: "Choose Environment", shortTitle: "Environment" },
-  { number: 4, title: "Choose Device", shortTitle: "Device" },
-  { number: 5, title: "Custom 3D Models", shortTitle: "3D Models" },
-  { number: 6, title: "Additional Options", shortTitle: "Options" },
-  { number: 7, title: "Order Overview", shortTitle: "Overview" },
+  { number: 1, title: "Details", shortTitle: "Details" },
+  { number: 2, title: "Games", shortTitle: "Game" },
+  { number: 3, title: "Environments", shortTitle: "Environment" },
+  { number: 4, title: "Devices", shortTitle: "Device" },
+  { number: 5, title: "Custom", shortTitle: "3D Models" },
+  { number: 6, title: "Additional", shortTitle: "Options" },
+  { number: 7, title: "Overview", shortTitle: "Overview" },
 ]
 
 export function ProgressBar({ currentStep }: ProgressBarProps) {
