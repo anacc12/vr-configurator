@@ -15,10 +15,10 @@ INSERT INTO games_reference (game_name, compatible_environments, pricing_package
 ('Find the ball', 'All', 'Bronze', 0, 0),
 ('Memory', 'All', 'Bronze', 0, 8),
 ('Simon Says', 'All', 'Bronze', 0, 0),
-('Branded objects hunt', 'Ancient Temple,Autumn Forest', 'Gold', 3, 0),
-('Wheel of fortune', 'All', 'Gold', 0, 5),
+-- ('Branded objects hunt', 'Ancient Temple,Autumn Forest', 'Gold', 3, 0),
+-- ('Wheel of fortune', 'All', 'Gold', 0, 5),
 ('Product Inspection', 'All', 'Silver', 3, 0),
-('Build the product', 'All', 'Silver', 3, 0),
+-- ('Build the product', 'All', 'Silver', 3, 0),
 ('Whack a mole', 'All', 'Bronze', 0, 0)
 ON CONFLICT (game_name) DO NOTHING;
 

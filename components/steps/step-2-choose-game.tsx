@@ -44,25 +44,25 @@ const GAMES_DATA = [
     description: "Follow the sequence and test your attention with this classic game.",
     link: "https://forceful-manager-624125.framer.app/games/simon-says"
   },
-  {
-    name: "Branded objects hunt",
-    compatibleEnvironments: "Ancient Temple,Autumn Forest",
-    pricingPackage: "Gold",
-    custom3DModels: 3,
-    unique2DSlots: 0,
-    description: "Hunt for branded objects in immersive environments with custom 3D models.",
-    link: "https://forceful-manager-624125.framer.app/games/branded-objects-hunt"
-  },
-  {
-    name: "Wheel of fortune",
-    compatibleEnvironments: "All",
-    pricingPackage: "Gold",
-    custom3DModels: 0,
-    unique2DSlots: 5,
-    description: "Spin the wheel and win prizes in this exciting game of chance.",
-    link: "https://forceful-manager-624125.framer.app/games/wheel-of-fortune"
+  // {
+  //   name: "Branded objects hunt",
+  //   compatibleEnvironments: "Ancient Temple,Autumn Forest",
+  //   pricingPackage: "Gold",
+  //   custom3DModels: 3,
+  //   unique2DSlots: 0,
+  //   description: "Hunt for branded objects in immersive environments with custom 3D models.",
+  //   link: "https://forceful-manager-624125.framer.app/games/branded-objects-hunt"
+  // },
+  // {
+  //   name: "Wheel of fortune",
+  //   compatibleEnvironments: "All",
+  //   pricingPackage: "Gold",
+  //   custom3DModels: 0,
+  //   unique2DSlots: 5,
+  //   description: "Spin the wheel and win prizes in this exciting game of chance.",
+  //   link: "https://forceful-manager-624125.framer.app/games/wheel-of-fortune"
 
-  },
+  // },
   {
     name: "Product Inspection",
     compatibleEnvironments: "All",
@@ -73,16 +73,16 @@ const GAMES_DATA = [
     link: "https://forceful-manager-624125.framer.app/games/product-inspection"
 
   },
-  {
-    name: "Build the product",
-    compatibleEnvironments: "All",
-    pricingPackage: "Silver",
-    custom3DModels: 3,
-    unique2DSlots: 0,
-    description: "Assemble products step by step in an interactive virtual environment.",
-    link: "https://forceful-manager-624125.framer.app/games/build-the-product"
+  // {
+  //   name: "Build the product",
+  //   compatibleEnvironments: "All",
+  //   pricingPackage: "Silver",
+  //   custom3DModels: 3,
+  //   unique2DSlots: 0,
+  //   description: "Assemble products step by step in an interactive virtual environment.",
+  //   link: "https://forceful-manager-624125.framer.app/games/build-the-product"
 
-  },
+  // },
   {
     name: "Whack a mole",
     compatibleEnvironments: "All",
@@ -259,17 +259,17 @@ export function Step2ChooseGame({ orderId, onDataChange, onValidationChange }: S
     const imageMap: Record<string, string> = {
       "Find the ball":
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Where%20is%20the%20ball-Of1R65RQHlEGZU0FPaPJmvsQaYjxxA.png",
-      Memory: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Memory-9NOlQXrgf7raqXwavOSMiv9gfB7C6c.png",
+      "Memory": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Memory-9NOlQXrgf7raqXwavOSMiv9gfB7C6c.png",
       "Simon Says":
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simon%20Says-rx3JAh8eOCp0O1h8DRc3Zx9qKLUq89.png",
-      "Branded objects hunt":
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Branded%20Object%20Hunt-IxcCZemencBjUo2aJQTDx93Z8Koe6x.png",
-      "Wheel of fortune":
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Wheel%20of%20Fortune-fZ17NTxhSkPYCbSd3aSyDHaCe6Mqlg.png",
+      // "Branded objects hunt":
+      //   "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Branded%20Object%20Hunt-IxcCZemencBjUo2aJQTDx93Z8Koe6x.png",
+      // "Wheel of fortune":
+      //   "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Wheel%20of%20Fortune-fZ17NTxhSkPYCbSd3aSyDHaCe6Mqlg.png",
       "Product Inspection":
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Product%20inspection-1f2yUvczb6LdM0JI1PDYUxxKEp8L94.png",
-      "Build the product":
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Build%20the%20product-8UPiWhJWbJjmry29je6yfVrQL3RVaO.png",
+      // "Build the product":
+      //   "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Build%20the%20product-8UPiWhJWbJjmry29je6yfVrQL3RVaO.png",
       "Whack a mole":
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Whack%20a%20mole-ZYReDHKsNd1VdPrdbpt5bqx7sVh6mm.png",
     }
