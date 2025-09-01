@@ -29,7 +29,7 @@ const OPTIONS_DATA = [
   },
   {
     id: "vr-trailer",
-    name: "VR game trailer creation",
+    name: "Showcase video production",
     tier: "Silver",
     description:
       "We recommend that you show the gameplay of the game at the booth. We will create a full 30-second trailer for your game with your branding.",
